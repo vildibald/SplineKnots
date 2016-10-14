@@ -8,6 +8,7 @@
 #include "StopWatch.h"
 #include "CurveDeboorKnotsGenerator.h"
 #include "ReducedCurveDeboorGenerator.h"
+#include "EnhancedReducedDeboorKnotsGenerator.h"
 
 void LUComparison()
 {
@@ -99,8 +100,11 @@ ComparisonBenchmarkResult SurfaceBenchmark(int num_iterations, int num_knots,
 
     splineknots::DeBoorKnotsGenerator full(function, optimized_lu);
     splineknots::ReducedDeBoorKnotsGenerator reduced(function, optimized_lu);
+    splineknots::EnhancedReducedDeboorKnotsGenerator enhanced(function,
+                                                         optimized_lu);
     full.InParallel(in_parallel);
     reduced.InParallel(in_parallel);
+    enhanced.InParallel(in_parallel);
     num_knots = num_knots % 2 == 0 ? num_knots + 1 : num_knots;
     const splineknots::SurfaceDimension udimension(-3, 3, num_knots);
     const splineknots::SurfaceDimension vdimension(udimension);
@@ -110,7 +114,9 @@ ComparisonBenchmarkResult SurfaceBenchmark(int num_iterations, int num_knots,
     full_times.reserve(num_iterations);
     std::vector<double> reduced_times;
     reduced_times.reserve(num_iterations);
-    calculated_results.reserve(num_iterations * 2);
+    std::vector<double> enhanced_times;
+    enhanced_times.reserve(num_iterations);
+    calculated_results.reserve(num_iterations * 3);
 
     for (size_t i = 0; i < num_iterations; i++)
     {
@@ -130,21 +136,41 @@ ComparisonBenchmarkResult SurfaceBenchmark(int num_iterations, int num_knots,
         reduced_times.push_back(time);
     }
 
+    for (size_t i = 0; i < num_iterations; i++)
+    {
+        double time = 0;
+        auto result = enhanced.GenerateKnots(udimension, vdimension,&time);
+        //result.Print();
+        calculated_results.push_back(result.Dxy(1, 1));
+        enhanced_times.push_back(time);
+    }
+
     auto full_time = static_cast<double>(std::accumulate(full_times.begin(),
                                                          full_times.end(), 0))
                      / static_cast<double>(num_iterations);
     auto reduced_time = static_cast<double>(std::accumulate(
             reduced_times.begin(), reduced_times.end(), 0))
                         / static_cast<double>(num_iterations);
+    auto enhanced_time = static_cast<double>(std::accumulate(
+            enhanced_times.begin(), enhanced_times.end(), 0))
+                        / static_cast<double>(num_iterations);
     std::cout << "Ignore " << calculated_results[0] << std::endl;
-    return ComparisonBenchmarkResult(full_time, reduced_time);
+    return ComparisonBenchmarkResult(full_time, reduced_time, enhanced_time);
 }
 
-void PrintDeboorResult(ComparisonBenchmarkResult& result)
+void PrintSurfaceDeboorResult(ComparisonBenchmarkResult& result)
 {
     std::cout << "Full : " << result.FirstAlg() << std::endl;
     std::cout << "Reduced : " << result.SecondAlg() << std::endl;
-    std::cout << "Difference : " << result.Ratio() << std::endl;
+    std::cout << "Enhanced : " << result.ThirdAlg() << std::endl;
+    std::cout << "Difference F/E: " << result.Ratio() << std::endl;
+}
+
+void PrintCurveDeboorResult(ComparisonBenchmarkResult& result)
+{
+    std::cout << "Full : " << result.FirstAlg() << std::endl;
+    std::cout << "Reduced : " << result.SecondAlg() << std::endl;
+    std::cout << "Difference F/R: " << result.Ratio() << std::endl;
 }
 
 int main()
@@ -192,7 +218,7 @@ int main()
                 std::cin.get();
                 result = CurveBenchmark(num_iterations, num_knots,
                                         optimized_tridiagonals);
-                PrintDeboorResult(result);
+                PrintCurveDeboorResult(result);
                 break;
             case '3':
                 std::cout << "Spline surface benchmark" << std::endl << std::endl;
@@ -204,7 +230,7 @@ int main()
 
                 result = SurfaceBenchmark(num_iterations, num_knots,
                                           false,optimized_tridiagonals);
-                PrintDeboorResult(result);
+                PrintSurfaceDeboorResult(result);
                 break;
             case '4':
                 std::cout << "Parallel spline surface benchmark" << std::endl <<
@@ -215,7 +241,7 @@ int main()
                 std::cin >> num_knots;
                 std::cin.get();
                 result = SurfaceBenchmark(num_iterations, num_knots, true, optimized_tridiagonals);
-                PrintDeboorResult(result);
+                PrintSurfaceDeboorResult(result);
                 break;
                 /*case '5':
                     LUComparison();
