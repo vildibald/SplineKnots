@@ -55,19 +55,26 @@ values) {
     auto three_div_h = precalculated_hx_.deboor_precalculated_.three_div_h;
     int nrows = values.RowsCount();
     int ncols = values.ColumnsCount();
-    utils::For(0, ncols,
-               [&](int j) {
-                   FillXYDerivations(j, values);
-                   for (size_t i = 1; i < nrows - 1; i += 2) {
-                       values.SetDxy(i, j,
-                                     0.25 *
-                                     (three_div_h * (values.Dx(i + 1, j) -
-                                                     values.Dx(i - 1, j)) -
-                                      values.Dxy(i + 1, j) +
-                                      values.Dxy(i - 1, j))
-                       );
-                   }
-               }, 1, is_parallel_);
+    FillXYDerivations(0, values);
+    FillXYDerivations(ncols - 1, values);
+    for (size_t i = 1; i < nrows - 1; i += 2) {
+        values.SetDxy(i, 0,
+                      0.25 *
+                      (three_div_h * (values.Dx(i + 1, 0) -
+                                      values.Dx(i - 1, 0)) -
+                       values.Dxy(i + 1, 0) +
+                       values.Dxy(i - 1, 0))
+        );
+        values.SetDxy(i, ncols - 1,
+                      0.25 *
+                      (three_div_h * (values.Dx(i + 1, ncols - 1) -
+                                      values.Dx(i - 1, ncols - 1)) -
+                       values.Dxy(i + 1, ncols - 1) +
+                       values.Dxy(i - 1, ncols - 1))
+        );
+    }
+
+
 }
 
 void
