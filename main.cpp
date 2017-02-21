@@ -8,7 +8,7 @@
 #include "StopWatch.h"
 #include "CurveDeboorKnotsGenerator.h"
 #include "ReducedCurveDeboorGenerator.h"
-#include "EnhancedReducedDeboorKnotsGenerator.h"
+#include "EnhancedKnotsGenerator.h"
 
 void LUComparison()
 {
@@ -98,9 +98,9 @@ ComparisonBenchmarkResult SurfaceBenchmark(int num_iterations, int num_knots,
         return sin(sqrt(x * x + y * y));
     };
 
-    splineknots::DeBoorKnotsGenerator full(function, optimized_lu);
-    splineknots::ReducedDeBoorKnotsGenerator reduced(function, optimized_lu);
-    splineknots::EnhancedReducedDeboorKnotsGenerator enhanced(function,
+    splineknots::FullKnotsGenerator full(function, optimized_lu);
+    splineknots::ReducedKnotsGenerator reduced(function, optimized_lu);
+    splineknots::EnhancedKnotsGenerator enhanced(function,
                                                          optimized_lu);
     full.InParallel(in_parallel);
     reduced.InParallel(in_parallel);

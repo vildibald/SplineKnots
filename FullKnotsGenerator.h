@@ -9,7 +9,7 @@
 
 namespace splineknots
 {
-	class DeBoorKnotsGenerator final
+	class FullKnotsGenerator final
 	{
 		friend class ReducedDeboorKnotsGenerator;
 		InterpolativeMathFunction function_;
@@ -24,9 +24,9 @@ namespace splineknots
 			Precalculated(const double h);
 		};
 
-		DeBoorKnotsGenerator(MathFunction math_function, bool buffered = true);
+		FullKnotsGenerator(MathFunction math_function, bool buffered = true);
 
-		DeBoorKnotsGenerator(InterpolativeMathFunction math_function,
+		FullKnotsGenerator(InterpolativeMathFunction math_function,
 		                     bool buffered = true);
 
 		KnotMatrix GenerateKnots(const SurfaceDimension& udimension,
@@ -37,10 +37,10 @@ namespace splineknots
 
 		bool IsParallel();
 
-		DeBoorKnotsGenerator(const MathFunction math_function,
+		FullKnotsGenerator(const MathFunction math_function,
 		                     Tridiagonal tridiagonal);
 
-		DeBoorKnotsGenerator(const InterpolativeMathFunction math_function,
+		FullKnotsGenerator(const InterpolativeMathFunction math_function,
 		                     Tridiagonal tridiagonal);
 
 		Tridiagonals& Tridagonals();

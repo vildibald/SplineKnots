@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include <omp.h>
 #include "ReducedTridiagonal.h"
-#include "ReducedDeboorKnotsGenerator.h"
+#include "ReducedKnotsGenerator.h"
 #include "utils.h"
 
 #include <ostream>
@@ -9,7 +9,7 @@
 #include "StopWatch.h"
 
 
-splineknots::ReducedDeBoorKnotsGenerator::ReducedDeBoorKnotsGenerator(
+splineknots::ReducedKnotsGenerator::ReducedKnotsGenerator(
         MathFunction math_function, bool buffered)
         : function_(math_function), tridagonals_(), is_parallel_(false),
           deboor_(math_function), precalculated_reduced_cross_(1, 1),
@@ -17,7 +17,7 @@ splineknots::ReducedDeBoorKnotsGenerator::ReducedDeBoorKnotsGenerator(
     tridagonals_.push_back(ReducedTridiagonal(buffered));
 }
 
-splineknots::ReducedDeBoorKnotsGenerator::ReducedDeBoorKnotsGenerator(
+splineknots::ReducedKnotsGenerator::ReducedKnotsGenerator(
         InterpolativeMathFunction math_function, bool buffered)
         : function_(math_function), tridagonals_(), is_parallel_(false),
           deboor_(math_function), precalculated_reduced_cross_(1, 1),
@@ -26,7 +26,7 @@ splineknots::ReducedDeBoorKnotsGenerator::ReducedDeBoorKnotsGenerator(
 }
 
 
-void splineknots::ReducedDeBoorKnotsGenerator::RightSideCross(
+void splineknots::ReducedKnotsGenerator::RightSideCross(
         const KnotMatrix &knots, const int i, const double dfirst,
         const double dlast, const int unknowns_count, KnotVector &rightside) {
     auto even = unknowns_count % 2 == 0;
@@ -165,7 +165,7 @@ void splineknots::ReducedDeBoorKnotsGenerator::RightSideCross(
                                      knots.Z(iMin1, columns - 3) - eta * dlast;
 }
 
-void splineknots::ReducedDeBoorKnotsGenerator::FillXDerivations(KnotMatrix &
+void splineknots::ReducedKnotsGenerator::FillXDerivations(KnotMatrix &
 values) {
     auto h = precalculated_hx_.deboor_precalculated_.h;
     auto three_div_h = precalculated_hx_.deboor_precalculated_.three_div_h;
@@ -186,7 +186,7 @@ values) {
                1, is_parallel_);
 }
 
-void splineknots::ReducedDeBoorKnotsGenerator::FillXYDerivations(KnotMatrix &
+void splineknots::ReducedKnotsGenerator::FillXYDerivations(KnotMatrix &
 values) {
     //#pragma omp parallel sections
     //	{
@@ -213,7 +213,7 @@ values) {
     deboor_.FillYXDerivations(values.RowsCount() - 1, values);
 }
 
-void splineknots::ReducedDeBoorKnotsGenerator::FillYDerivations(KnotMatrix &
+void splineknots::ReducedKnotsGenerator::FillYDerivations(KnotMatrix &
 values) {
     auto h = precalculated_hy_.deboor_precalculated_.h;
     auto three_div_h = precalculated_hy_.deboor_precalculated_.three_div_h;
@@ -234,7 +234,7 @@ values) {
                1, is_parallel_);
 }
 
-void splineknots::ReducedDeBoorKnotsGenerator::FillYXDerivations(KnotMatrix &
+void splineknots::ReducedKnotsGenerator::FillYXDerivations(KnotMatrix &
 values) {
     int nrows = values.RowsCount();
 
@@ -316,7 +316,7 @@ values) {
                2, is_parallel_);
 }
 
-void splineknots::ReducedDeBoorKnotsGenerator::FillXDerivations(const int
+void splineknots::ReducedKnotsGenerator::FillXDerivations(const int
                                                                 column_index,
                                                                 KnotMatrix &values) {
     auto unknowns_count = values.RowsCount() - 2;
@@ -337,7 +337,7 @@ void splineknots::ReducedDeBoorKnotsGenerator::FillXDerivations(const int
                      dset);
 }
 
-void splineknots::ReducedDeBoorKnotsGenerator::FillXYDerivations(const int
+void splineknots::ReducedKnotsGenerator::FillXYDerivations(const int
                                                                  column_index,
                                                                  KnotMatrix &values) {
     auto unknowns_count = values.RowsCount() - 2;
@@ -359,7 +359,7 @@ void splineknots::ReducedDeBoorKnotsGenerator::FillXYDerivations(const int
                      dset);
 }
 
-void splineknots::ReducedDeBoorKnotsGenerator::FillYDerivations(const int
+void splineknots::ReducedKnotsGenerator::FillYDerivations(const int
                                                                 row_index,
                                                                 KnotMatrix &values) {
     auto unknowns_count = values.ColumnsCount() - 2;
@@ -380,7 +380,7 @@ void splineknots::ReducedDeBoorKnotsGenerator::FillYDerivations(const int
                      dset);
 }
 
-void splineknots::ReducedDeBoorKnotsGenerator::FillYXDerivations(const int
+void splineknots::ReducedKnotsGenerator::FillYXDerivations(const int
                                                                  row_index,
                                                                  KnotMatrix &values) {
     auto unknowns_count = values.ColumnsCount() - 2;
@@ -398,17 +398,17 @@ void splineknots::ReducedDeBoorKnotsGenerator::FillYXDerivations(const int
     }
 }
 
-const ::splineknots::ReducedDeBoorKnotsGenerator::PrecalculatedReducedCross &
-splineknots::ReducedDeBoorKnotsGenerator::PrecalculatedCross() const {
+const ::splineknots::ReducedKnotsGenerator::PrecalculatedReducedCross &
+splineknots::ReducedKnotsGenerator::PrecalculatedCross() const {
     return precalculated_reduced_cross_;
 }
 
-void splineknots::ReducedDeBoorKnotsGenerator::SetPrecalculatedCross(
+void splineknots::ReducedKnotsGenerator::SetPrecalculatedCross(
         PrecalculatedReducedCross precalculated_reduced_cross) {
     precalculated_reduced_cross_ = std::move(precalculated_reduced_cross);
 }
 
-void splineknots::ReducedDeBoorKnotsGenerator::InitializeBuffers(const size_t
+void splineknots::ReducedKnotsGenerator::InitializeBuffers(const size_t
                                                                  u_count,
                                                                  const size_t v_count) {
     auto size = std::max(u_count / 2 - 1, v_count / 2 - 1);
@@ -420,7 +420,7 @@ void splineknots::ReducedDeBoorKnotsGenerator::InitializeBuffers(const size_t
 }
 
 
-splineknots::KnotMatrix splineknots::ReducedDeBoorKnotsGenerator::
+splineknots::KnotMatrix splineknots::ReducedKnotsGenerator::
 GenerateKnots(const SurfaceDimension &udimension, const SurfaceDimension &
 vdimension, double *calculation_time) {
     StopWatch sw;
@@ -448,7 +448,7 @@ vdimension, double *calculation_time) {
 }
 
 void
-splineknots::ReducedDeBoorKnotsGenerator::InParallel(bool in_parallel) {
+splineknots::ReducedKnotsGenerator::InParallel(bool in_parallel) {
     is_parallel_ = in_parallel;
     auto threads = utils::num_threads;
     if (in_parallel) {
@@ -466,16 +466,16 @@ splineknots::ReducedDeBoorKnotsGenerator::InParallel(bool in_parallel) {
 }
 
 splineknots::ReducedTridiagonals &
-splineknots::ReducedDeBoorKnotsGenerator::Tridagonals() {
+splineknots::ReducedKnotsGenerator::Tridagonals() {
     return tridagonals_;
 }
 
 splineknots::ReducedTridiagonal &
-splineknots::ReducedDeBoorKnotsGenerator::Tridiagonal() {
+splineknots::ReducedKnotsGenerator::Tridiagonal() {
     return tridagonals_[omp_get_thread_num()];
 }
 
-splineknots::ReducedDeBoorKnotsGenerator::PrecalculatedReduced::
+splineknots::ReducedKnotsGenerator::PrecalculatedReduced::
 PrecalculatedReduced(const double h) : deboor_precalculated_(h) {
     six_div_h = 2 * deboor_precalculated_.three_div_h;
     twelve_div_h = 2 * six_div_h;
@@ -486,7 +486,7 @@ PrecalculatedReduced(const double h) : deboor_precalculated_(h) {
     twelve_div_7h = 4 * deboor_precalculated_.three_div_h;
 }
 
-splineknots::ReducedDeBoorKnotsGenerator::PrecalculatedReducedCross::
+splineknots::ReducedKnotsGenerator::PrecalculatedReducedCross::
 PrecalculatedReducedCross(const PrecalculatedReduced &precalculated_hx,
                           const PrecalculatedReduced &precalculated_hy) {
     nine_div_7hxhy =
@@ -498,14 +498,14 @@ PrecalculatedReducedCross(const PrecalculatedReduced &precalculated_hx,
     onehundredfortyfour_div_7hxhy = 4 * thirtysix_div_7hxhy;
 }
 
-void splineknots::ReducedDeBoorKnotsGenerator::InitializeKnots(
+void splineknots::ReducedKnotsGenerator::InitializeKnots(
         const SurfaceDimension &udimension, const SurfaceDimension &vdimension,
         KnotMatrix &values) {
     Precalculate(udimension, vdimension);
     deboor_.InitializeKnots(udimension, vdimension, values);
 }
 
-void splineknots::ReducedDeBoorKnotsGenerator::Precalculate(
+void splineknots::ReducedKnotsGenerator::Precalculate(
         const SurfaceDimension &udimension,
         const SurfaceDimension &vdimension) {
     precalculated_hx_ = PrecalculatedReduced(abs(

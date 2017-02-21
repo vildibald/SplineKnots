@@ -1,20 +1,21 @@
 #pragma once
 
-#include "DeBoorKnotsGenerator.h"
+#include "FullKnotsGenerator.h"
+#include "Tridiagonal.h"
 #include "ReducedTridiagonal.h"
 
 namespace splineknots {
-    class ReducedDeBoorKnotsGenerator final {
+    class EnhancedKnotsGenerator final {
         InterpolativeMathFunction function_;
         ReducedTridiagonals tridagonals_;
         bool is_parallel_;
-        DeBoorKnotsGenerator deboor_;
+        FullKnotsGenerator deboor_;
     public:
-        ReducedDeBoorKnotsGenerator(MathFunction function,
-                                    bool buffered = true);
+        EnhancedKnotsGenerator(MathFunction function,
+                                            bool buffered = true);
 
-        ReducedDeBoorKnotsGenerator(InterpolativeMathFunction function,
-                                    bool buffered = true);
+        EnhancedKnotsGenerator(InterpolativeMathFunction function,
+                                            bool buffered = true);
 
         KnotMatrix GenerateKnots(const SurfaceDimension &udimension,
                                  const SurfaceDimension &vdimension,
@@ -26,30 +27,14 @@ namespace splineknots {
 
         ReducedTridiagonal &Tridiagonal();
 
-        struct PrecalculatedReduced final {
-            DeBoorKnotsGenerator::Precalculated deboor_precalculated_;
-            double six_div_h,
-                    twelve_div_h,
-                    eighteen_div_h,
-                    twentyfour_div_h,
-                    three_div_7h,
-                    nine_div_7h,
-                    twelve_div_7h;
+        struct PrecalculatedEnhancedReduced final {
+            FullKnotsGenerator::Precalculated deboor_precalculated_;
+            double twelve_div_h,
+                    three_h_div_4;
 
-            PrecalculatedReduced(const double h);
+            PrecalculatedEnhancedReduced(const double h);
         };
 
-        struct PrecalculatedReducedCross final {
-            double nine_div_7hxhy,
-                    twentyseven_div_7hxhy,
-                    thirtysix_div_7hxhy,
-                    onehundredeight_div_7hxhy,
-                    onehundredfortyfour_div_7hxhy;
-
-            PrecalculatedReducedCross(
-                    const PrecalculatedReduced &precalculated_hx,
-                    const PrecalculatedReduced &precalculated_hy);
-        };
 
         void InitializeKnots(const SurfaceDimension &udimension,
                              const SurfaceDimension &vdimension,
@@ -62,7 +47,7 @@ namespace splineknots {
 
         template<typename RightSideSelector>
         void RightSide(const RightSideSelector &right_side_variables,
-                       const PrecalculatedReduced &precalculated,
+                       const PrecalculatedEnhancedReduced &precalculated,
                        const double dfirst, const double dlast,
                        const int unknowns_count, KnotVector &rightside) {
             auto even = unknowns_count % 2 == 0;
@@ -131,9 +116,9 @@ namespace splineknots {
 
         template<typename RightSideSelector, typename UnknownsSetter>
         void SolveTridiagonal(const RightSideSelector &selector,
-                              const PrecalculatedReduced &precalculated,
-                              const double dfirst, const double dlast,
-                              const int unknowns_count,
+                              const PrecalculatedEnhancedReduced &precalculated,
+                              const double dfirst,
+                              const double dlast, const int unknowns_count,
                               UnknownsSetter &unknowns_setter) {
             auto &tridiagonal = Tridiagonal();
             auto &rightside = Tridiagonal().RightSideBuffer();
@@ -146,13 +131,8 @@ namespace splineknots {
         }
 
     private:
-        PrecalculatedReducedCross precalculated_reduced_cross_;
-        PrecalculatedReduced precalculated_hx_;
-        PrecalculatedReduced precalculated_hy_;
+        PrecalculatedEnhancedReduced precalculated_hx_;
+        PrecalculatedEnhancedReduced precalculated_hy_;
 
-        const PrecalculatedReducedCross &PrecalculatedCross() const;
-
-        void SetPrecalculatedCross(PrecalculatedReducedCross
-                                   precalculated_reduced_cross);
     };
 }
