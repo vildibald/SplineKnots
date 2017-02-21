@@ -1,15 +1,15 @@
 #pragma once
 
 class ComparisonBenchmarkResult {
-    unsigned long long first_alg_;
-    unsigned long long second_alg_;
-    unsigned long long third_alg_;
-    double ratio_;
+    unsigned long long firstAlg;
+    unsigned long long secondAlg;
+    unsigned long long thirdAlg;
+    double ratio;
 
 public:
-    ComparisonBenchmarkResult(unsigned long long first_alg_time,
-                              unsigned long long second_alg_time,
-                              unsigned long long third_alg_time = 0);
+    ComparisonBenchmarkResult(unsigned long long firstAlgTime,
+                              unsigned long long secondAlgTime,
+                              unsigned long long thirdAlgTime = 0);
 
     unsigned long long FirstAlg() const;
 

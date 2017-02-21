@@ -3,29 +3,29 @@
 
 
 ComparisonBenchmarkResult::ComparisonBenchmarkResult(unsigned long long
-                                                     first_alg_time,
-                                                     unsigned long long second_alg_time,
+                                                     firstAlgTime,
+                                                     unsigned long long secondAlgTime,
                                                      unsigned long long
-                                                     third_alg_time)
-        : first_alg_(first_alg_time), second_alg_(second_alg_time), third_alg_(
-        third_alg_time) {
-    auto divisor = third_alg_time == -1 ? second_alg_time : third_alg_time;
-    ratio_ = static_cast<double>(first_alg_time) / static_cast<double>(
+                                                     thirdAlgTime)
+        : firstAlg(firstAlgTime), secondAlg(secondAlgTime), thirdAlg(
+        thirdAlgTime) {
+    auto divisor = thirdAlgTime == -1 ? secondAlgTime : thirdAlgTime;
+    ratio = static_cast<double>(firstAlgTime) / static_cast<double>(
             divisor);
 }
 
 unsigned long long ComparisonBenchmarkResult::FirstAlg() const {
-    return first_alg_;
+    return firstAlg;
 }
 
 unsigned long long ComparisonBenchmarkResult::SecondAlg() const {
-    return second_alg_;
+    return secondAlg;
 }
 
 unsigned long long ComparisonBenchmarkResult::ThirdAlg() const {
-    return third_alg_;
+    return thirdAlg;
 }
 
 double ComparisonBenchmarkResult::Ratio() const {
-    return ratio_;
+    return ratio;
 }
