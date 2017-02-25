@@ -8,41 +8,41 @@
 
 splineknots::KnotMatrix::~KnotMatrix() noexcept
 {
-	if (!z_) return;
-	for (size_t i = 0; i < xdim_.knot_count; i++)
+	if (!z) return;
+	for (size_t i = 0; i < x.size(); i++)
 	{
-		delete[] z_[i];
-		delete[] dy_[i];
-		delete[] dxy_[i];
+		delete[] z[i];
+		delete[] dy[i];
+		delete[] dxy[i];
 	}
-	for (size_t i = 0; i < ydim_.knot_count; i++)
+	for (size_t i = 0; i < y.size(); i++)
 	{
-		delete[] dx_[i];
+		delete[] dx[i];
 	}
-	delete[] z_;
-	delete[] dx_;
-	delete[] dy_;
-	delete[] dxy_;
-	z_ = nullptr;
-	dx_ = nullptr;
-	dy_ = nullptr;
-	dxy_ = nullptr;
+	delete[] z;
+	delete[] dx;
+	delete[] dy;
+	delete[] dxy;
+	z = nullptr;
+	dx = nullptr;
+	dy = nullptr;
+	dxy = nullptr;
 }
 
 void splineknots::KnotMatrix::Print()
 {
 	using namespace std;
 	cout << "---------- Knot matrix ----------" << endl;
-	for (size_t i = 0; i < xdim_.knot_count; i++)
+	for (size_t i = 0; i < RowsCount(); i++)
 	{
 		cout << "Row " << i << " :\n";
-		for (size_t j = 0; j < ydim_.knot_count; j++)
+		for (size_t j = 0; j < ColumnsCount(); j++)
 		{
 			cout << j << ":\n"
-				<< "z: " << z_[i][j] << '\n'
-				<< "dx: " << dx_[j][i] << '\n'
-				<< "dy: " << dy_[i][j] << '\n'
-				<< "dxy: " << dxy_[i][j] << '\n';
+				<< "z: " << z[i][j] << '\n'
+				<< "dx: " << dx[j][i] << '\n'
+				<< "dy: " << dy[i][j] << '\n'
+				<< "dxy: " << dxy[i][j] << '\n';
 		}
 		cout << endl;
 	}
@@ -50,9 +50,9 @@ void splineknots::KnotMatrix::Print()
 }
 
 splineknots::KnotMatrix::KnotMatrix()
-	:xdim_(0,0,0),ydim_(0,0,0),
-	 z_(nullptr),
-	 dx_(nullptr), dy_(nullptr), dxy_(nullptr)
+		: x(), y(),
+	 z(nullptr),
+	 dx(nullptr), dy(nullptr), dxy(nullptr)
 {
 }
 
@@ -64,66 +64,66 @@ splineknots::KnotMatrix splineknots::KnotMatrix::NullMatrix()
 
 bool splineknots::KnotMatrix::IsNull()
 {
-	if (!z_ || !dx_ || !dy_ || !dxy_ || xdim_.knot_count < 1 || ydim_.knot_count < 1)
+	if (!z || !dx || !dy || !dxy || RowsCount() < 1 || ColumnsCount() < 1)
 		return true;
 	return false;
 }
 
-splineknots::KnotMatrix::KnotMatrix(SurfaceDimension rowdimension, SurfaceDimension columndimension)
-	: xdim_(std::move(rowdimension)), ydim_(std::move(columndimension))
+splineknots::KnotMatrix::KnotMatrix(KnotVector rowVector, KnotVector columnVector)
+	: x(std::move(rowVector)), y(std::move(columnVector))
 {
-	z_ = new double*[xdim_.knot_count];
-	dy_ = new double*[xdim_.knot_count];
-	dxy_ = new double*[xdim_.knot_count];
-	for (size_t i = 0; i < xdim_.knot_count; i++)
+	z = new double*[RowsCount()];
+	dy = new double*[RowsCount()];
+	dxy = new double*[RowsCount()];
+	for (size_t i = 0; i < RowsCount(); i++)
 	{
-		z_[i] = new double[ydim_.knot_count];
-		dy_[i] = new double[ydim_.knot_count];
-		dxy_[i] = new double[ydim_.knot_count];
+		z[i] = new double[ColumnsCount()];
+		dy[i] = new double[ColumnsCount()];
+		dxy[i] = new double[ColumnsCount()];
 	}
-	dx_ = new double*[ydim_.knot_count];
-	for (size_t i = 0; i < ydim_.knot_count; i++)
+	dx = new double*[ColumnsCount()];
+	for (size_t i = 0; i < ColumnsCount(); i++)
 	{
-		dx_[i] = new double[xdim_.knot_count];
+		dx[i] = new double[RowsCount()];
 	}
 }
 
 splineknots::KnotMatrix::KnotMatrix(const KnotMatrix& other)
-	: xdim_(other.xdim_),
-	ydim_(other.ydim_)
+	: x(other.x),
+	y(other.y)
 {
-	z_ = new double*[xdim_.knot_count];
-	dy_ = new double*[xdim_.knot_count];
-	dxy_ = new double*[xdim_.knot_count];
+	z = new double*[RowsCount()];
+	dy = new double*[RowsCount()];
+	dxy = new double*[RowsCount()];
 	for (size_t i = 0; i < other.RowsCount(); i++)
 	{
-		z_[i] = new double[ydim_.knot_count];
-		dy_[i] = new double[ydim_.knot_count];
-		dxy_[i] = new double[ydim_.knot_count];
-		memcpy(z_[i], other.z_[i], ydim_.knot_count);
-		memcpy(dy_[i], other.dy_[i], ydim_.knot_count);
-		memcpy(dxy_[i], other.dxy_[i], ydim_.knot_count);
+		z[i] = new double[ColumnsCount()];
+		dy[i] = new double[ColumnsCount()];
+		dxy[i] = new double[ColumnsCount()];
+		memcpy(z[i], other.z[i], ColumnsCount());
+		memcpy(dy[i], other.dy[i], ColumnsCount());
+		memcpy(dxy[i], other.dxy[i], ColumnsCount());
 	}
-	dx_ = new double*[ydim_.knot_count];
+	dx = new double*[ColumnsCount()];
 	for (size_t i = 0; i < other.ColumnsCount(); i++)
 	{
-		dx_[i] = new double[xdim_.knot_count];
-		memcpy(dx_[i], other.dx_[i], xdim_.knot_count);
+		dx[i] = new double[RowsCount()];
+		memcpy(dx[i], other.dx[i], RowsCount());
 	}
 }
 
 splineknots::KnotMatrix::KnotMatrix(KnotMatrix&& other) noexcept
-	: xdim_(std::move(other.xdim_)),
-	ydim_(std::move(other.ydim_))
+	: x(std::move(other.x)),
+	y(std::move(other.y))
 {
-	z_ = other.z_;
-	other.z_ = nullptr;
-	dx_ = other.dx_;
-	other.dx_ = nullptr;
-	dy_ = other.dy_;
-	other.dy_ = nullptr;
-	dxy_ = other.dxy_;
-	other.dxy_ = nullptr;
+	z = other.z;
+	other.z = nullptr;
+	dx = other.dx;
+	other.dx = nullptr;
+	dy = other.dy;
+	other.dy = nullptr;
+	dxy = other.dxy;
+	other.dxy = nullptr;
 }
 
 splineknots::KnotMatrix& splineknots::KnotMatrix::operator=(const KnotMatrix&
@@ -131,25 +131,25 @@ splineknots::KnotMatrix& splineknots::KnotMatrix::operator=(const KnotMatrix&
 {
 	if (&other != this)
 	{
-		utils::DeleteJaggedArray(z_, xdim_.knot_count, ydim_.knot_count);
-		utils::DeleteJaggedArray(dx_, ydim_.knot_count, xdim_.knot_count);
-		utils::DeleteJaggedArray(dy_, xdim_.knot_count, ydim_.knot_count);
-		utils::DeleteJaggedArray(dxy_, xdim_.knot_count, ydim_.knot_count);
-		xdim_ = other.xdim_;
-		ydim_ = other.ydim_;
-		z_ = utils::CreateJaggedArray<double>(xdim_.knot_count, ydim_.knot_count);
-		dx_ = utils::CreateJaggedArray<double>(ydim_.knot_count, xdim_.knot_count);
-		dy_ = utils::CreateJaggedArray<double>(xdim_.knot_count, ydim_.knot_count);
-		dxy_ = utils::CreateJaggedArray<double>(xdim_.knot_count, ydim_.knot_count);
-		for (size_t i = 0; i < xdim_.knot_count; i++)
+		utils::DeleteJaggedArray(z, RowsCount(), ColumnsCount());
+		utils::DeleteJaggedArray(dx, ColumnsCount(), RowsCount());
+		utils::DeleteJaggedArray(dy, RowsCount(), ColumnsCount());
+		utils::DeleteJaggedArray(dxy, RowsCount(), ColumnsCount());
+		x = other.x;
+		y = other.y;
+		z = utils::CreateJaggedArray<double>(RowsCount(), ColumnsCount());
+		dx = utils::CreateJaggedArray<double>(ColumnsCount(), RowsCount());
+		dy = utils::CreateJaggedArray<double>(RowsCount(), ColumnsCount());
+		dxy = utils::CreateJaggedArray<double>(RowsCount(), ColumnsCount());
+		for (size_t i = 0; i < RowsCount(); i++)
 		{
-			memcpy(z_[i], other.z_[i], ydim_.knot_count);
-			memcpy(dy_[i], other.dy_[i], ydim_.knot_count);
-			memcpy(dxy_[i], other.dxy_[i], ydim_.knot_count);
+			memcpy(z[i], other.z[i], ColumnsCount());
+			memcpy(dy[i], other.dy[i], ColumnsCount());
+			memcpy(dxy[i], other.dxy[i], ColumnsCount());
 		}
-		for (size_t i = 0; i < ydim_.knot_count; i++)
+		for (size_t i = 0; i < ColumnsCount(); i++)
 		{
-			memcpy(dx_[i], other.dx_[i], xdim_.knot_count);
+			memcpy(dx[i], other.dx[i], RowsCount());
 		}
 	}
 	return *this;
@@ -159,20 +159,20 @@ splineknots::KnotMatrix& splineknots::KnotMatrix::operator=(KnotMatrix&& other) 
 {
 	if (&other != this)
 	{
-		utils::DeleteJaggedArray(z_, xdim_.knot_count, ydim_.knot_count);
-		utils::DeleteJaggedArray(dx_, ydim_.knot_count, xdim_.knot_count);
-		utils::DeleteJaggedArray(dy_, xdim_.knot_count, ydim_.knot_count);
-		utils::DeleteJaggedArray(dxy_, xdim_.knot_count, ydim_.knot_count);
-		xdim_ = std::move(other.xdim_);
-		ydim_ = std::move(other.ydim_);
-		z_ = other.z_;
-		other.z_ = nullptr;
-		dx_ = other.dx_;
-		other.dx_ = nullptr;
-		dy_ = other.dy_;
-		other.dy_ = nullptr;
-		dxy_ = other.dxy_;
-		other.dxy_ = nullptr;
+		utils::DeleteJaggedArray(z, RowsCount(), ColumnsCount());
+		utils::DeleteJaggedArray(dx, ColumnsCount(), RowsCount());
+		utils::DeleteJaggedArray(dy, RowsCount(), ColumnsCount());
+		utils::DeleteJaggedArray(dxy, RowsCount(), ColumnsCount());
+		x = std::move(other.x);
+		y = std::move(other.y);
+		z = other.z;
+		other.z = nullptr;
+		dx = other.dx;
+		other.dx = nullptr;
+		dy = other.dy;
+		other.dy = nullptr;
+		dxy = other.dxy;
+		other.dxy = nullptr;
 
 	}
 	return *this;

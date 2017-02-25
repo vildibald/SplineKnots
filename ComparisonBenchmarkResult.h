@@ -1,21 +1,16 @@
 #pragma once
 
+#include <vector>
+
 class ComparisonBenchmarkResult {
-    unsigned long long firstAlg;
-    unsigned long long secondAlg;
-    unsigned long long thirdAlg;
-    double ratio;
+    std::vector<unsigned long long> algorithmTimes;
 
 public:
-    ComparisonBenchmarkResult(unsigned long long firstAlgTime,
-                              unsigned long long secondAlgTime,
-                              unsigned long long thirdAlgTime = 0);
+    ComparisonBenchmarkResult();
 
-    unsigned long long FirstAlg() const;
+    ComparisonBenchmarkResult& Add(unsigned long long time);
 
-    unsigned long long SecondAlg() const;
+    unsigned long long operator[](size_t i) const;
 
-    unsigned long long ThirdAlg() const;
-
-    double Ratio() const;
+    double Ratio(size_t i, size_t j) const;
 };

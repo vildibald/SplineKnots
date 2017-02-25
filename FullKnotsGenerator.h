@@ -3,7 +3,6 @@
 //
 #include "MathFunction.h"
 #include "KnotMatrix.h"
-#include "SurfaceDimension.h"
 #include <functional>
 #include <vector>
 #include "Tridiagonal.h"
@@ -16,105 +15,95 @@
 namespace splineknots {
     class FullKnotsGenerator {
         InterpolativeMathFunction function;
-        Tridiagonals tridiagonals;
+        Tridiagonals uTridiagonals;
+        Tridiagonals vTridiagonals;
         bool isParallel;
+
+        void InitializeTridiagonal(const KnotVector& uKnots,
+                                   const KnotVector& vKnots);
+
+        KnotMatrix InitializeKnots(KnotVector uKnots,
+                                   KnotVector vKnots);
+
     public:
 
-        FullKnotsGenerator(MathFunction mathFunction, bool buffered = true);
+        FullKnotsGenerator(MathFunction mathFunction,
+                           bool buffered = true);
 
         FullKnotsGenerator(InterpolativeMathFunction mathFunction,
-                                     bool buffered = true);
+                           bool buffered = true);
 
-        KnotMatrix GenerateKnots(const SurfaceDimension &udimension,
-                                 const SurfaceDimension &vdimension,
-                                 double *calculationTime = nullptr);
+        KnotMatrix GenerateKnots(KnotVector uKnots,
+                                 KnotVector vKnots,
+                                 double* calculationTime = nullptr);
 
         void InParallel(bool value);
 
         bool IsParallel();
 
-        FullKnotsGenerator(const MathFunction mathFunction,
-                                     Tridiagonal tridiagonal);
 
-        FullKnotsGenerator(const InterpolativeMathFunction mathFunction,
-                                     Tridiagonal tridiagonal);
+        void FillXDerivations(KnotMatrix& values);
 
-        Tridiagonals &Tridagonals();
+        void FillXYDerivations(KnotMatrix& values);
 
-        Tridiagonal &Tridiagonal();
+        void FillYDerivations(KnotMatrix& values);
 
-        void InitializeBuffers(const size_t u_count, const size_t v_count);
+        void FillYXDerivations(KnotMatrix& values);
 
-        void Precalculate(const SurfaceDimension &udimension,
-                          const SurfaceDimension &vdimension);
+        void FillXDerivations(const int column_index,
+                              KnotMatrix& values);
 
-        void InitializeKnots(const SurfaceDimension &udimension,
-                             const SurfaceDimension &vdimension, KnotMatrix &values);
+        void FillXYDerivations(const int column_index,
+                               KnotMatrix& values);
 
-        void FillXDerivations(KnotMatrix &values);
+        void FillYDerivations(const int row_index,
+                              KnotMatrix& values);
 
-        void FillXYDerivations(KnotMatrix &values);
+        void FillYXDerivations(const int row_index,
+                               KnotMatrix& values);
 
-        void FillYDerivations(KnotMatrix &values);
-
-        void FillYXDerivations(KnotMatrix &values);
-
-        void FillXDerivations(const int column_index, KnotMatrix &values);
-
-        void FillXYDerivations(const int column_index, KnotMatrix &values);
-
-        void FillYDerivations(const int row_index, KnotMatrix &values);
-
-        void FillYXDerivations(const int row_index, KnotMatrix &values);
-
-        template<typename RightSideSelector, typename KnotCoordinateSelector>
-        void RightSide(const RightSideSelector &rightSideSelector,
-                       const KnotCoordinateSelector &knotCoordinateSelector,
+        template<typename RightSideSelector>
+        void RightSide(const RightSideSelector& rightSideSelector,
                        const double dfirst,
-                       const double dlast, const int unknownsCount,
-                       KnotVector &rightSide) {
+                       const double dlast,
+                       Tridiagonal& tridiagonal) {
 
-            auto deltaXIPlus1 = knotCoordinateSelector(2) - knotCoordinateSelector(1);
-            auto deltaXI = knotCoordinateSelector(1) - knotCoordinateSelector(0);
+            auto& rightSide = tridiagonal.GetRightSideBuffer();
+            auto& deltaIMin1DivDeltaI = tridiagonal.GetDeltaIMin1DivDeltaI();
+            auto& deltaIDivDeltaIMin1 = tridiagonal.GetDeltaIDivDeltaIMin1();
+            auto& deltas = tridiagonal.GetDeltas();
             rightSide[0] = 3 * (
-                    deltaXI / deltaXIPlus1 * (rightSideSelector(2) - rightSideSelector(1))
+                    deltaIMin1DivDeltaI[0] * (rightSideSelector(2) - rightSideSelector(1))
                     +
-                    deltaXIPlus1 / deltaXI * (rightSideSelector(1) - rightSideSelector(0))
-            );
-            deltaXIPlus1 = knotCoordinateSelector(2) - knotCoordinateSelector(1);
-            deltaXI = knotCoordinateSelector(1) - knotCoordinateSelector(0);
-            rightSide[unknownsCount - 1] = 3 * (
-                    deltaXI / deltaXIPlus1 * (rightSideSelector(unknownsCount + 1)
-                                              - rightSideSelector(unknownsCount))
+                    deltaIDivDeltaIMin1[0] * (rightSideSelector(1) - rightSideSelector(0))
+            ) - deltas[0] * dfirst;
+            rightSide.back() = 3 * (
+                    deltaIMin1DivDeltaI.back() * (rightSideSelector(rightSide.size()+1)
+                                                  - rightSideSelector(rightSide.size()))
                     +
-                    deltaXIPlus1 / deltaXI * (rightSideSelector(unknownsCount)
-                                              - rightSideSelector(unknownsCount - 1))
-            );
-            for (auto i = 1; i < unknownsCount - 1; i++) {
-                deltaXIPlus1 = knotCoordinateSelector(i + 2) - knotCoordinateSelector(i + 1);
-                deltaXI = knotCoordinateSelector(i + 1) - knotCoordinateSelector(i);
+                    deltaIDivDeltaIMin1.back() * (rightSideSelector(rightSide.size())
+                                                  - rightSideSelector(rightSide.size() - 1))
+            ) - deltas.back() * dlast;
+            for (auto i = 1; i < rightSide.size() - 1; i++) {
                 rightSide[i] = 3 * (
-                        deltaXI / deltaXIPlus1 * (rightSideSelector(i + 2) - rightSideSelector
+                        deltaIMin1DivDeltaI[i] * (rightSideSelector(i + 2) - rightSideSelector
                                 (i + 1))
                         +
-                        deltaXIPlus1 / deltaXI * (rightSideSelector(i + 1) - rightSideSelector(i))
+                        deltaIDivDeltaIMin1[i] * (rightSideSelector(i + 1) - rightSideSelector(i))
                 );
             }
         }
 
-        template<typename RightSideSelector, typename KnotCoordinateSelector,
-                typename UnknownsSetter>
-        void SolveTridiagonal(const RightSideSelector &selector,
-                              const KnotCoordinateSelector& knotCoordinateSelector,
+        template<typename RightSideSelector, typename UnknownsSetter>
+        void SolveTridiagonal(const RightSideSelector& selector,
                               const double dfirst,
-                              const double dlast, const int unknowns_count,
-                              UnknownsSetter &unknowns_setter) {
-            auto &tridiagonal = Tridiagonal();
-            auto &rightside = Tridiagonal().RightSideBuffer();
-            RightSide(selector, knotCoordinateSelector, dfirst, dlast, unknowns_count, rightside);
+                              const double dlast,
+                              Tridiagonal& tridiagonal,
+                              UnknownsSetter& unknowns_setter) {
+            RightSide(selector, dfirst, dlast, tridiagonal);
 
-            auto &result = tridiagonal.Solve();
-            for (int k = 0; k < unknowns_count; k++) {
+            auto& result = tridiagonal.Solve();
+            for (int k = 0; k < result.size(); k++) {
                 unknowns_setter(k + 1, result[k]);
             }
         }

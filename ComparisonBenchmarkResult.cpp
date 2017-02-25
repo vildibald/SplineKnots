@@ -2,30 +2,19 @@
 #include "ComparisonBenchmarkResult.h"
 
 
-ComparisonBenchmarkResult::ComparisonBenchmarkResult(unsigned long long
-                                                     firstAlgTime,
-                                                     unsigned long long secondAlgTime,
-                                                     unsigned long long
-                                                     thirdAlgTime)
-        : firstAlg(firstAlgTime), secondAlg(secondAlgTime), thirdAlg(
-        thirdAlgTime) {
-    auto divisor = thirdAlgTime == -1 ? secondAlgTime : thirdAlgTime;
-    ratio = static_cast<double>(firstAlgTime) / static_cast<double>(
-            divisor);
+ComparisonBenchmarkResult::ComparisonBenchmarkResult()
+        : algorithmTimes() {
 }
 
-unsigned long long ComparisonBenchmarkResult::FirstAlg() const {
-    return firstAlg;
+ComparisonBenchmarkResult& ComparisonBenchmarkResult::Add(unsigned long long time) {
+    algorithmTimes.emplace_back(time);
+    return *this;
 }
 
-unsigned long long ComparisonBenchmarkResult::SecondAlg() const {
-    return secondAlg;
+unsigned long long ComparisonBenchmarkResult::operator[](size_t i) const {
+    return algorithmTimes[i];
 }
 
-unsigned long long ComparisonBenchmarkResult::ThirdAlg() const {
-    return thirdAlg;
-}
-
-double ComparisonBenchmarkResult::Ratio() const {
-    return ratio;
+double ComparisonBenchmarkResult::Ratio(size_t i, size_t j) const {
+    return static_cast<double>(algorithmTimes[i]) / static_cast<double>(algorithmTimes[j]);
 }

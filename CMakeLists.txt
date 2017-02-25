@@ -14,9 +14,8 @@ set(SOURCE_FILES main.cpp
         SplineKnots.h
         stdafx.cpp stdafx.h
         StopWatch.h
-        SurfaceDimension.cpp SurfaceDimension.h
         Tridiagonal.cpp Tridiagonal.h
-        utils.cpp utils.h utils_template.cpp
+        utils.cpp utils.h
         )
 
 add_executable(SplineKnots ${SOURCE_FILES})

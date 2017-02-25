@@ -12,55 +12,36 @@ namespace splineknots {
     typedef std::vector<Tridiagonal> Tridiagonals;
 
     class Tridiagonal final {
-        KnotVector luBuffer;
-        KnotVector rightSideBuffer;
-        std::vector<double> lowerDiagonal_;
-        std::vector<double> mainDiagonal_;
-        std::vector<double> upperDiagonal_;
+        std::vector<double> luBuffer;
+        std::vector<double> rightSideBuffer;
+        std::vector<double> deltas;
+        std::vector<double> mainDiagonal;
+        std::vector<double> deltaIMin1DivDeltaI;
+        std::vector<double> deltaIDivDeltaIMin1;
 
-        Tridiagonal(std::vector<double> lowerDiagonal,
-                    std::vector<double> mainDiagonal,
-                    std::vector<double> upperDiagonal);
+        Tridiagonal(const std::vector<double>& deltas, const std::vector<double>& mainDiagonal,
+                    const std::vector<double>& deltaIMin1DivDeltaI,
+                    const std::vector<double>& deltaIDivDeltaIMin1,
+                    const size_t numUnknowns
+        );
 
     public:
-        template<typename KnotCoordinates>
-        static Tridiagonal
-        Create(KnotCoordinates &knots, size_t numUnknowns) {
-            std::vector<double> lowerDiagonal(numUnknowns);
-            std::vector<double> mainDiagonal(numUnknowns);
-            std::vector<double> upperDiagonal(numUnknowns);
 
-            for (int i = 1; i < numUnknowns - 1; ++i) {
-                lowerDiagonal.emplace_back(
-                        knots(i) - knots(i - 1)
-                );
-                mainDiagonal.emplace_back(2 * (
-                        knots(i + 1) - knots(i - 1)
-                ));
-                upperDiagonal.emplace_back(
-                        knots(i + 1) - knots(i)
-                );
-            }
+        Tridiagonal(const KnotVector& knots, size_t numUnknowns);
 
-            return Tridiagonal(lowerDiagonal, mainDiagonal, upperDiagonal);
-        }
+        KnotVector& Solve();
 
+        KnotVector& ResetBufferAndGet();
 
-        void ResizeBuffers(size_t newsize, bool shrinking_allowed = false);
+        KnotVector& Buffer();
 
-        KnotVector &Solve();
+        const std::vector<double>& GetDeltas() const;
 
-        KnotVector &RightSideBuffer();
+        const std::vector<double>& GetDeltaIMin1DivDeltaI() const;
 
-        void ResizeBuffer(size_t newsize, bool shrinking_allowed = false);
+        const std::vector<double>& GetDeltaIDivDeltaIMin1() const;
 
-        void ResizeRightSide(size_t newsize, bool shrinking_allowed = false);
-
-        KnotVector &ResetBufferAndGet();
-
-        KnotVector &Buffer();
-
-        bool IsUsingOptimizedTridiagonal() const;
+        std::vector<double>& GetRightSideBuffer();
 
         //friends
 //		friend class ReducedTridiagonal;

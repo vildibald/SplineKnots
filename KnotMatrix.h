@@ -1,16 +1,18 @@
 #pragma once
-#include "SurfaceDimension.h"
+
+#include "KnotVector.h"
 
 namespace splineknots
 {
 	class KnotMatrix
 	{
-		SurfaceDimension xdim_;
-		SurfaceDimension ydim_;
-		double** z_;
-		double** dx_;
-		double** dy_;
-		double** dxy_;
+
+		double** z;
+		double** dx;
+		double** dy;
+		double** dxy;
+		KnotVector x;
+		KnotVector y;
 
 		KnotMatrix();
 	public:
@@ -18,7 +20,7 @@ namespace splineknots
 		
 		bool IsNull();
 		
-		KnotMatrix(SurfaceDimension rowdimension, SurfaceDimension columndimension);
+		KnotMatrix(KnotVector rowVector, KnotVector columnVector);
 		
 		KnotMatrix(const KnotMatrix& other);
 		
@@ -32,87 +34,84 @@ namespace splineknots
 
 		size_t RowsCount() const
 		{
-			return xdim_.knot_count;
+			return x.size();
 		}
 
 		size_t ColumnsCount() const
 		{
-			return ydim_.knot_count;
+			return y.size();
 		}
 
 
 		double** Z() const
 		{
-			return z_;
+			return z;
 		}
 
 		double** Dx() const
 		{
-			return dx_;
+			return dx;
 		}
 
 		double** Dy() const
 		{
-			return dy_;
+			return dy;
 		}
 
 		double** Dxy() const
 		{
-			return dxy_;
+			return dxy;
 		}
 
-		double X(const size_t i,const size_t j) const
-		{
-			return j*abs(xdim_.max - xdim_.min) / xdim_.knot_count;
+		const KnotVector& X() const{
+			return x;
 		}
 
-		double Y(const size_t i, const size_t j) const
-		{
-			return i*abs(ydim_.max - ydim_.min) / ydim_.knot_count;
+		const KnotVector& Y() const{
+			return y;
 		}
 
-		const SurfaceDimension& XDimensionParameters() const
-		{
-			return xdim_;
+		const double X(size_t i) const{
+			return x[i];
 		}
 
-		const SurfaceDimension& YDimensionParameters() const
-		{
-			return ydim_;
+		const double Y(size_t j) const{
+			return y[j];
 		}
+
 
 		double Z(const size_t i, const size_t j) const
 		{
-			return z_[i][j];
+			return z[i][j];
 		}
 		double Dx(const size_t i, const size_t j) const
 		{
-			return dx_[j][i];
+			return dx[j][i];
 		}
 		double Dy(const size_t i, const size_t j) const
 		{
-			return dy_[i][j];
+			return dy[i][j];
 		}
 		double Dxy(const size_t i, const size_t j) const
 		{
-			return dxy_[i][j];
+			return dxy[i][j];
 		}
 	
 		void SetZ(const size_t i, const size_t j, const double value)
 		{
-			z_[i][j] = value;
+			z[i][j] = value;
 		}
 		void SetDx(const size_t i, const size_t j, const double value)
 		{
-			dx_[j][i] = value;
+			dx[j][i] = value;
 		}
 		void SetDy(const size_t i, const size_t j, const double value)
 		{
-			dy_[i][j] = value;
+			dy[i][j] = value;
 		}
 		void SetDxy(const size_t i, const size_t j, const double value)
 		{
-			dxy_[i][j] = value;
+			dxy[i][j] = value;
 		}
 
 		void Print();
