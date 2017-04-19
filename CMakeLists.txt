@@ -22,6 +22,6 @@ set(SOURCE_FILES main.cpp
         SurfaceDimension.cpp SurfaceDimension.h
         Tridiagonal.cpp Tridiagonal.h
         utils.cpp utils.h utils_template.cpp
-        NonUniformFullKnotsGenerator.cpp NonUniformFullKnotsGenerator.h)
+        )
 
 add_executable(SplineKnots ${SOURCE_FILES})

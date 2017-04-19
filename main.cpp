@@ -59,6 +59,7 @@ ComparisonBenchmarkResult CurveBenchmark(int num_iterations, int num_knots,
     splineknots::SurfaceDimension udimension(-2, 2, num_knots);
 
     std::vector<double> calculated_results;
+
     std::vector<unsigned int> full_times;
     full_times.reserve(num_iterations);
     std::vector<unsigned int> reduced_times;
@@ -122,7 +123,7 @@ ComparisonBenchmarkResult SurfaceBenchmark(int num_iterations, int num_knots,
     {
         double time = 0;
         auto result = full.GenerateKnots(udimension, vdimension, &time);
-        //result.Print();
+        result.Print();
         calculated_results.push_back(result.Dxy(1, 1));
         full_times.push_back(time);
     }
@@ -131,7 +132,7 @@ ComparisonBenchmarkResult SurfaceBenchmark(int num_iterations, int num_knots,
     {
         double time = 0;
         auto result = reduced.GenerateKnots(udimension, vdimension,&time);
-        //result.Print();
+        result.Print();
         calculated_results.push_back(result.Dxy(1, 1));
         reduced_times.push_back(time);
     }
@@ -140,7 +141,7 @@ ComparisonBenchmarkResult SurfaceBenchmark(int num_iterations, int num_knots,
     {
         double time = 0;
         auto result = enhanced.GenerateKnots(udimension, vdimension,&time);
-        //result.Print();
+        result.Print();
         calculated_results.push_back(result.Dxy(1, 1));
         enhanced_times.push_back(time);
     }

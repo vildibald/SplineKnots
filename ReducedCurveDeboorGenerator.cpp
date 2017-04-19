@@ -68,22 +68,23 @@ GenerateKnots(const splineknots::SurfaceDimension& dimension,
 	n1 = (N % 2 == 0) ? (N - 2) / 2 : (N - 3) / 2;
 	KnotVector result(knots.size());
 	sw.Start();
-	RightSide(knots, h, dfirst, dlast);
-	auto rhs = tridiagonal_.Solve(n1);
-	result[0] = dfirst;
-	result[result.size() - 1] = dlast;
 
-	for (int i = 0; i < n1; i++)
-	{
-		result[2 * (i + 1)] = rhs[i];
-	}
-	auto mu1 = 3.0 / h;
-	for (int i = 1; i < result.size(); i += 2)
-	{
-		result[i] = 0.25 * (mu1 * (knots[i + 1] - knots[i - 1]) - 
-			result[i - 1]
-			- result[i + 1]);
-	}
+//    for (int i = 0; i < 1000; ++i) {
+        RightSide(knots, h, dfirst, dlast);
+        auto& rhs = tridiagonal_.Solve(N);
+        result[0] = dfirst;
+        result[result.size() - 1] = dlast;
+
+        for (int i = 0; i < n1; i++) {
+            result[2 * (i + 1)] = rhs[i];
+        }
+        auto mu1 = 3.0 / h;
+        for (int i = 1; i < result.size(); i += 2) {
+            result[i] = 0.25 * (mu1 * (knots[i + 1] - knots[i - 1]) -
+                                result[i - 1]
+                                - result[i + 1]);
+        }
+//    }
 	sw.Stop();
 	if (calculation_time != nullptr)
 	{

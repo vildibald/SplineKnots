@@ -9,7 +9,7 @@ KnotVector&
 splineknots::ReducedTridiagonal::Solve(size_t num_unknowns)
 {
 	auto even = num_unknowns % 2 == 0;
-	auto num_equations = even ? num_unknowns / 2 - 1 : num_unknowns / 2;
+	auto num_equations = even ? (num_unknowns - 2) / 2 : (num_unknowns - 3) / 2;
 	auto& rightside = RightSideBuffer();
 	auto resize = std::max(num_equations, rightside.size());
 	auto minsize = std::min(Buffer().size(), rightside.size());

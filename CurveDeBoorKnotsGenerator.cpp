@@ -56,13 +56,19 @@ GenerateKnots(const SurfaceDimension& dimension, double* calculation_time)
 	KnotVector result(knots.size());
 
 	sw.Start();
-	RightSide(knots, abs(dimension.max - dimension.min)
-		/ (dimension.knot_count - 1), dfirst, dlast);
-	
-	auto& rhs = tridiagonal_.Solve(dimension.knot_count-2);
-	result[0] = dfirst;
-	result[result.size() - 1] = dlast;
-	memcpy(&result.front() + 1, &rhs.front(), rhs.size());
+
+//    for (int i = 0; i < 1000; ++i) {
+        RightSide(knots, abs(dimension.max - dimension.min)
+                         / (dimension.knot_count - 1), dfirst, dlast);
+        auto& rhs = tridiagonal_.Solve(dimension.knot_count-2);
+        result[0] = dfirst;
+        result[result.size() - 1] = dlast;
+        memcpy(&result.front() + 1, &rhs.front(), rhs.size());
+//    for (int i = 1; i < result.size()-1; ++i) {
+//        result[i] = rhs[i-1];
+//    }
+//    }
+
 	sw.Stop();
 	
 	if (calculation_time != nullptr)
