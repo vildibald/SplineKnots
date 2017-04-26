@@ -12,7 +12,7 @@ namespace splineknots
 		MathFunction dy_;
 		MathFunction dxy_;
 	public:
-		explicit InterpolativeMathFunction(const MathFunction function);
+		InterpolativeMathFunction(const MathFunction function);
 		
 		const MathFunction& Z() const;
 		
