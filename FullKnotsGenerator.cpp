@@ -189,7 +189,6 @@ namespace splineknots {
             return values.Dy(index, column_index);
         };
 
-        auto h = precalculated_hx_.h;
         auto dlast = values.Dxy(values.RowsCount() - 1, column_index);
         auto dfirst = values.Dxy(0, column_index);
 

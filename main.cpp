@@ -86,7 +86,6 @@ int main() {
         std::cout << std::endl << "---------------" << std::endl;
         unsigned int num_iterations;
         unsigned int num_knots;
-        ComparisonBenchmarkResult result(1, 1);
         switch (input) {
             case '1':
                 std::cout << "Instructions benchmark" << std::endl << std::endl;
@@ -94,8 +93,8 @@ int main() {
                 break;
             case '2':
                 std::cout << "Spline surface benchmark" << std::endl << std::endl;
-                num_iterations = 10;
-                num_knots = 2001;
+                num_iterations = 50;
+                num_knots = 1001;
                 SurfaceBenchmark(num_iterations, num_knots,
                                           false, true);
                 break;
@@ -122,7 +121,7 @@ void EqualityComparison() {
     splineknots::ReducedKnotsGenerator reduced(function, true);
     full.InParallel(false);
     reduced.InParallel(false);
-    unsigned int numKnots = 5;
+    unsigned int numKnots = 7;
 
     const splineknots::SurfaceDimension udimension(-3, 3, numKnots);
     const splineknots::SurfaceDimension vdimension(udimension);
@@ -135,7 +134,6 @@ void EqualityComparison() {
     auto minDiffDx = std::numeric_limits<double>::max(), maxDiffDx = std::numeric_limits<double>::min();
     auto minDiffDy = std::numeric_limits<double>::max(), maxDiffDy = std::numeric_limits<double>::min();
     auto minDiffDxy = std::numeric_limits<double>::max(), maxDiffDxy = std::numeric_limits<double>::min();
-    auto minDiff = std::numeric_limits<double>::max(), maxDiff = std::numeric_limits<double>::min();
 
     const double hx = abs(udimension.max - udimension.min) / (udimension.knot_count - 1);
     const double hy = abs(vdimension.max - vdimension.min) / (vdimension.knot_count - 1);
@@ -163,9 +161,6 @@ void EqualityComparison() {
             maxDiffDxy = std::max(maxDiffDxy,
                                   std::abs(resultFull.Dxy(i, j) - resultReduced.Dxy(i, j)));
 
-            minDiff = std::max({minDiff, minDiffDx, minDiffDy, minDiffDxy});
-            maxDiff = std::max({maxDiff, maxDiffDx, maxDiffDy, maxDiffDxy});
-
             std::cout << "\nColumn " << j << ":\n"
                       << "M. z: " << interpolativeMathFunction.Z()(x, y) << '\n'
                       << "M. dx: " << interpolativeMathFunction.Dx()(x, y) << '\n'
@@ -191,6 +186,4 @@ void EqualityComparison() {
     std::cout << "Max diff Dy: " << maxDiffDy << std::endl;
     std::cout << "Min diff Dxy: " << minDiffDxy << std::endl;
     std::cout << "Max diff Dxy: " << maxDiffDxy << std::endl;
-    std::cout << "Min diff: " << minDiff << std::endl;
-    std::cout << "Max diff: " << maxDiff << std::endl;
 }
