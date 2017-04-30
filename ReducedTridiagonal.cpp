@@ -5,7 +5,7 @@
 #include "Tridiagonal.h"
 
 
-KnotVector&
+std::vector<double>&
 splineknots::ReducedTridiagonal::Solve(size_t num_unknowns)
 {
 	auto even = num_unknowns % 2 == 0;
@@ -34,7 +34,7 @@ void splineknots::ReducedTridiagonal::ResizeBuffers(size_t newsize,
 	tridiagonal_.ResizeBuffers(newsize, shrinking_allowed);
 }
 
-KnotVector&
+std::vector<double>&
 splineknots::ReducedTridiagonal::RightSideBuffer()
 {
 	return tridiagonal_.RightSideBuffer();
@@ -52,13 +52,13 @@ void splineknots::ReducedTridiagonal::ResizeRightSide(size_t newsize,
 	tridiagonal_.ResizeRightSide(newsize, shrinking_allowed);
 }
 
-KnotVector&
+std::vector<double>&
 splineknots::ReducedTridiagonal::ResetBufferAndGet()
 {
 	return tridiagonal_.ResetBufferAndGet();
 }
 
-KnotVector&
+std::vector<double>&
 splineknots::ReducedTridiagonal::Buffer()
 {
 	return tridiagonal_.Buffer();

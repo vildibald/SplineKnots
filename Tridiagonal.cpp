@@ -40,7 +40,7 @@ void splineknots::Tridiagonal::ResizeRightSide(size_t newsize, bool
 }
 
 
-KnotVector&
+std::vector<double>&
 splineknots::Tridiagonal::ResetBufferAndGet()
 {
 	auto& buffer = lu_buffer_;
@@ -48,13 +48,13 @@ splineknots::Tridiagonal::ResetBufferAndGet()
 	return buffer;
 }
 
-KnotVector&
+std::vector<double>&
 splineknots::Tridiagonal::Buffer()
 {
 	return lu_buffer_;
 }
 
-KnotVector&
+std::vector<double>&
 splineknots::Tridiagonal::Solve(size_t num_unknowns)
 {
 	auto resize = std::max(num_unknowns, right_side_buffer_.size());
@@ -68,7 +68,7 @@ splineknots::Tridiagonal::Solve(size_t num_unknowns)
 	return right_side_buffer_;
 }
 
-KnotVector&
+std::vector<double>&
 splineknots::Tridiagonal::RightSideBuffer()
 {
 	return right_side_buffer_;

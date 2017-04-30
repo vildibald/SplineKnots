@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include <vector>
 #include "KnotMatrix.h"
-#include "KnotVector.h"
 
 
 namespace splineknots
@@ -11,8 +10,8 @@ namespace splineknots
 	typedef std::vector<Tridiagonal> Tridiagonals;
 	class Tridiagonal final
 	{	
-		KnotVector lu_buffer_;
-		KnotVector right_side_buffer_;
+		std::vector<double> lu_buffer_;
+		std::vector<double> right_side_buffer_;
 		const double main_diagonal_value;
 	public:
 		
@@ -20,12 +19,12 @@ namespace splineknots
 
 		void ResizeBuffers(size_t newsize, bool shrinking_allowed = false);
 
-		KnotVector& Solve(size_t num_unknowsns);
-		KnotVector& RightSideBuffer();
+		std::vector<double>& Solve(size_t num_unknowsns);
+		std::vector<double>& RightSideBuffer();
 		void ResizeBuffer(size_t newsize, bool shrinking_allowed = false);
 		void ResizeRightSide(size_t newsize, bool shrinking_allowed = false);
-		KnotVector& ResetBufferAndGet();
-		KnotVector& Buffer();
+		std::vector<double>& ResetBufferAndGet();
+		std::vector<double>& Buffer();
 		const double& MainDiagonalValue() const;
 		bool IsUsingOptimizedTridiagonal() const;
 

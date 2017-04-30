@@ -98,7 +98,6 @@ namespace splineknots {
             auto v = vdimension.min;
             for (auto j = 0; j < vdimension.knot_count; j++, v += hy) {
                 auto z = f.Z()(u, v);
-                //Function.Z(u,v); //Z(u, v);
                 values.SetZ(i, j, z);
             }
         }

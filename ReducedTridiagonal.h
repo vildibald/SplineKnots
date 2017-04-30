@@ -18,18 +18,18 @@ namespace splineknots
 
 		void ResizeBuffers(size_t newsize, bool shrinking_allowed = false);
 
-		KnotVector& Solve(size_t num_unknowsns);
+		std::vector<double>& Solve(size_t num_unknowsns);
 		
-		KnotVector& RightSideBuffer();
+		std::vector<double>& RightSideBuffer();
 
 	private:
 		void ResizeBuffer(size_t newsize, bool shrinking_allowed = false);
 		
 		void ResizeRightSide(size_t newsize, bool shrinking_allowed = false);	
 	public:
-		KnotVector& ResetBufferAndGet();
+		std::vector<double>& ResetBufferAndGet();
 		
-		KnotVector& Buffer();
+		std::vector<double>& Buffer();
 		
 		const double& MainDiagonalValue() const;
 	};

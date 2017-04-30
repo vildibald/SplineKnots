@@ -75,7 +75,7 @@ namespace splineknots
 		void RightSide(const RightSideSelector& right_side_variables,
 		               const Precalculated& precalculated, const double dfirst,
 		               const double dlast, const int unknowns_count,
-		               KnotVector& rightside)
+		               std::vector<double>& rightside)
 		{
 			auto h3 = precalculated.three_div_h;
 			rightside[0] = h3 * (right_side_variables(2)

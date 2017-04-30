@@ -28,7 +28,7 @@ splineknots::ReducedKnotsGenerator::ReducedKnotsGenerator(
 
 void splineknots::ReducedKnotsGenerator::RightSideCross(
         const KnotMatrix &knots, const int i, const double dfirst,
-        const double dlast, const int unknowns_count, KnotVector &rightside) {
+        const double dlast, const int unknowns_count, std::vector<double> &rightside) {
     auto even = unknowns_count % 2 == 0;
     auto equations_count = even ? unknowns_count / 2 - 1 : unknowns_count / 2;
     auto eta = even ? -4 : 1;

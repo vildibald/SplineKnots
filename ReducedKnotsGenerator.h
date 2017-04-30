@@ -64,7 +64,7 @@ namespace splineknots {
         void RightSide(const RightSideSelector &right_side_variables,
                        const PrecalculatedReduced &precalculated,
                        const double dfirst, const double dlast,
-                       const int unknowns_count, KnotVector &rightside) {
+                       const int unknowns_count, std::vector<double> &rightside) {
             auto even = unknowns_count % 2 == 0;
             auto tau = even ? 0 : 2;
             auto eta = even ? -4 : 1;
@@ -111,7 +111,7 @@ namespace splineknots {
 
         void RightSideCross(const KnotMatrix &knots, const int i,
                             const double dfirst, const double dlast,
-                            const int unknowns_count, KnotVector &rightside);
+                            const int unknowns_count, std::vector<double> &rightside);
 
         void FillXDerivations(KnotMatrix &values);
 
