@@ -1,4 +1,3 @@
 #pragma once
-#include "ReducedKnotsGenerator.h"
-#include "KnotMatrix.h"
+#include "Spline.h"
 #include "utils.h"

@@ -7,7 +7,12 @@ namespace splineknots
 	SurfaceDimension::SurfaceDimension(double min, double max, int knotCount)
 		:min(min),
 		 max(max),
-		 knot_count(knotCount)
+		 knotCount(knotCount),
+		 h(abs(max-min)/(knotCount-1))
 	{
+	}
+
+	double SurfaceDimension::H() const {
+		return h;
 	}
 }

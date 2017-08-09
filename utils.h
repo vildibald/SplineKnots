@@ -2,6 +2,7 @@
 #include <omp.h>
 #include <thread>
 #include <vector>
+#include <cfloat>
 
 namespace utils
 {
@@ -54,21 +55,20 @@ namespace utils
 		return res;
 	}
 
+	void SolveCsabaDeboorTridiagonalSystem(
+			double main_diagonal_value, double right_side[], unsigned int
+	num_equations, double last_main_diagonal_value = DBL_MIN);
+
 	void SolveCsabaDeboorTridiagonalSystemBuffered(double main_diagonal_value,
-		double right_side[], unsigned int num_equations, double L[],
-		double U[], double Y[], double D[],
-		double last_main_diagonal_value = DBL_MIN);
-	
-	void SolveTridiagonalSystemBuffered(double lower_diagonal[],
-		double main_diagonal[],
-		double upper_diagonal[], double right_side[], size_t num_equations,
-		double buffer[]);
-	
+												   double right_side[], unsigned int num_equations, double L[],
+												   double U[], double Y[], double D[], double
+												   last_main_diagonal_value= DBL_MIN);
+
 	void SolveDeboorTridiagonalSystemBuffered(double lower_diagonal_value,
 		double main_diagonal_value, double upper_diagonal_value,
 		double right_side[], size_t num_equations, double buffer[],
 		double last_main_diagonal_value = DBL_MIN);
-	
+
 	void SolveDeboorTridiagonalSystemBuffered(double main_diagonal_value,
 		double right_side[], size_t num_equations, double buffer[], double
 		last_main_diagonal_value = DBL_MIN);

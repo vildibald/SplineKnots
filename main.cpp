@@ -6,13 +6,17 @@
 #include "ComparisonBenchmarkResult.h"
 #include <numeric>
 #include "StopWatch.h"
+#include "FullAlgorithm.h"
+#include "ReducedAlgorithm.h"
 
-void EqualityComparison();
-
+//
+//void EqualityComparison();
+//
 void MulDivBenchmark() {
     OperationsBenchmark bencher;
     bencher.BenchAll();
 }
+
 
 void PrintSurfaceDeboorResult(ComparisonBenchmarkResult result) {
     std::cout << "Full : " << result.FirstAlg() << std::endl;
@@ -20,125 +24,78 @@ void PrintSurfaceDeboorResult(ComparisonBenchmarkResult result) {
     std::cout << "Difference F/R: " << result.Ratio() << std::endl;
 }
 
-void SurfaceBenchmark(int num_iterations, int num_knots,
-                                           bool in_parallel = false, bool optimized_lu = true) {
+void SurfaceBenchmark(int numIterations, int numKnots) {
+    splineknots::SurfaceDimension uDim(-20, 20, numKnots);
+    splineknots::SurfaceDimension vDim = uDim;
+
     splineknots::MathFunction function = [](double x, double y) {
         return sin(sqrt(x * x + y * y));
     };
+    splineknots::InterpolativeMathFunction f = function;
 
-    splineknots::FullKnotsGenerator full(function, optimized_lu);
-    splineknots::ReducedKnotsGenerator reduced(function, optimized_lu);
+    FullAlgorithm full(uDim, vDim, f);
+    ReducedAlgorithm reduced(uDim, vDim, f);
 
-    full.InParallel(in_parallel);
-    reduced.InParallel(in_parallel);
+    std::vector<double> calculatedResults;
+    std::vector<double> fullTimes;
+    fullTimes.reserve(numIterations);
+    std::vector<double> reducedTimes;
+    reducedTimes.reserve(numIterations);
 
-    num_knots = num_knots % 2 == 0 ? num_knots + 1 : num_knots;
-    const splineknots::SurfaceDimension udimension(-20, 20, num_knots);
-    const splineknots::SurfaceDimension vdimension(udimension);
+    calculatedResults.reserve(numIterations * 2);
 
-    std::vector<double> calculated_results;
-    std::vector<double> full_times;
-    full_times.reserve(num_iterations);
-    std::vector<double> reduced_times;
-    reduced_times.reserve(num_iterations);
-
-    calculated_results.reserve(num_iterations * 3);
-
-    for (size_t i = 0; i < num_iterations; i++) {
+    for (size_t i = 0; i < numIterations; i++) {
         double time = 0;
-        auto result = full.GenerateKnots(udimension, vdimension, &time);
-        calculated_results.push_back(result.Dxy(1, 1));
-        full_times.push_back(time);
+        auto result = full.Calculate(&time);
+        calculatedResults.emplace_back(result.Dxy(1, 1));
+        fullTimes.emplace_back(time);
     }
 
-    for (size_t i = 0; i < num_iterations; i++) {
+    for (size_t i = 0; i < numIterations; i++) {
         double time = 0;
-        auto result = reduced.GenerateKnots(udimension, vdimension, &time);
-        calculated_results.push_back(result.Dxy(1, 1));
-        reduced_times.push_back(time);
+        auto result = reduced.Calculate(&time);
+        calculatedResults.emplace_back(result.Dxy(1, 1));
+        reducedTimes.emplace_back(time);
     }
 
-    auto full_time = static_cast<double>(std::accumulate(full_times.begin(),
-                                                         full_times.end(), 0))
-                     / static_cast<double>(num_iterations);
+    auto full_time = static_cast<double>(std::accumulate(fullTimes.begin(),
+                                                         fullTimes.end(), 0))
+                     / static_cast<double>(numIterations);
     auto reduced_time = static_cast<double>(std::accumulate(
-            reduced_times.begin(), reduced_times.end(), 0))
-                        / static_cast<double>(num_iterations);
-    std::cout << "Ignore " << calculated_results[0] << std::endl;
+            reducedTimes.begin(), reducedTimes.end(), 0))
+                        / static_cast<double>(numIterations);
+    std::cout << "Ignore " << calculatedResults[0] << std::endl;
     PrintSurfaceDeboorResult(ComparisonBenchmarkResult(full_time, reduced_time));
 }
 
-int main() {
-    while (true) {
-        //std::cout << clock();
-        // Console clear ...
-        // ... for Windows,
-        system("cls");
-        // ... for Linux/Unix.
-        //system("clear");
-        std::cout << "1: Instructions benchmark." << std::endl;
-        std::cout << "2: Spline surface benchmark." << std::endl;
-        std::cout << "3: Equality comparison." << std::endl;
-        std::cout << "Q: End program" << std::endl;
-        char input;
-        std::cin >> input;
-        std::cin.get();
-        std::cout << std::endl << "---------------" << std::endl;
-        unsigned int num_iterations;
-        unsigned int num_knots;
-        switch (input) {
-            case '1':
-                std::cout << "Instructions benchmark" << std::endl << std::endl;
-                MulDivBenchmark();
-                break;
-            case '2':
-                std::cout << "Spline surface benchmark" << std::endl << std::endl;
-                num_iterations = 50;
-                num_knots = 1001;
-                SurfaceBenchmark(num_iterations, num_knots,
-                                          false, true);
-                break;
-            case '3':
-                EqualityComparison();
-                break;
-            case 'q':
-            case 'Q':
-                return 0;
-        }
-
-        std::cout << "===================" << std::endl;
-        system("pause");
-    }
-    return 0;
-}
-
 void EqualityComparison() {
-    const splineknots::MathFunction function = [](double x, double y) {
+    splineknots::SurfaceDimension udimension(-3, 3, 7);
+    splineknots::SurfaceDimension vdimension = udimension;
+
+    splineknots::MathFunction function = [](double x, double y) {
         return sin(sqrt(x * x + y * y));
     };
+    splineknots::InterpolativeMathFunction f = function;
 
-    splineknots::FullKnotsGenerator full(function, true);
-    splineknots::ReducedKnotsGenerator reduced(function, true);
-    full.InParallel(false);
-    reduced.InParallel(false);
-    unsigned int numKnots = 7;
+    FullAlgorithm full(udimension, vdimension, f);
+    ReducedAlgorithm reduced(udimension, vdimension, f);
 
-    const splineknots::SurfaceDimension udimension(-3, 3, numKnots);
-    const splineknots::SurfaceDimension vdimension(udimension);
+    std::vector<double> calculatedResults;
+    std::vector<double> fullTimes;
+    std::vector<double> reducedTimes;
 
-    double time = 0;
-    auto resultFull = full.GenerateKnots(udimension, vdimension, &time);
+    auto resultFull = full.Calculate();
+    auto resultReduced = reduced.Calculate();
 
-    auto resultReduced = reduced.GenerateKnots(udimension, vdimension, &time);
+    splineknots::InterpolativeMathFunction interpolativeMathFunction = function;
+    std::cout << "---------- Knot matrix ----------" << std::endl;
 
     auto minDiffDx = std::numeric_limits<double>::max(), maxDiffDx = std::numeric_limits<double>::min();
     auto minDiffDy = std::numeric_limits<double>::max(), maxDiffDy = std::numeric_limits<double>::min();
     auto minDiffDxy = std::numeric_limits<double>::max(), maxDiffDxy = std::numeric_limits<double>::min();
 
-    const double hx = abs(udimension.max - udimension.min) / (udimension.knot_count - 1);
-    const double hy = abs(vdimension.max - vdimension.min) / (vdimension.knot_count - 1);
-    splineknots::InterpolativeMathFunction interpolativeMathFunction = function;
-    std::cout << "---------- Knot matrix ----------" << std::endl;
+    const double hx = udimension.H();
+    const double hy = vdimension.H();
 
     double x = udimension.min;
     for (unsigned int i = 0; i < resultFull.RowsCount(); ++i, x += hx) {
@@ -187,3 +144,53 @@ void EqualityComparison() {
     std::cout << "Min diff Dxy: " << minDiffDxy << std::endl;
     std::cout << "Max diff Dxy: " << maxDiffDxy << std::endl;
 }
+
+
+using namespace splineknots;
+
+
+int main() {
+
+    while (true) {
+        //std::cout << clock();
+        // Console clear ...
+        // ... for Windows,
+        system("cls");
+        // ... for Linux/Unix.
+        //system("clear");
+        std::cout << "1: Instructions benchmark." << std::endl;
+        std::cout << "2: Spline surface benchmark." << std::endl;
+        std::cout << "3: Equality comparison." << std::endl;
+        std::cout << "Q: End program" << std::endl;
+        char input;
+        std::cin >> input;
+        std::cin.get();
+        std::cout << std::endl << "---------------" << std::endl;
+        unsigned int num_iterations;
+        unsigned int num_knots;
+        switch (input) {
+            case '1':
+                std::cout << "Instructions benchmark" << std::endl << std::endl;
+                MulDivBenchmark();
+                break;
+            case '2':
+                std::cout << "Spline surface benchmark" << std::endl << std::endl;
+                num_iterations = 10;
+                num_knots = 2001;
+                SurfaceBenchmark(num_iterations, num_knots);
+                break;
+            case '3':
+                EqualityComparison();
+                break;
+            case 'q':
+            case 'Q':
+                return 0;
+        }
+
+        std::cout << "===================" << std::endl;
+        system("pause");
+    }
+    return 0;
+
+}
+
